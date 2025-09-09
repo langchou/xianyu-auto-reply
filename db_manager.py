@@ -588,27 +588,21 @@ class DBManager:
         """更新admin用户ID"""
         try:
             logger.info("开始更新admin用户ID...")
-            
-            # 从环境变量获取管理员账号配置
-            import os
-            admin_username = os.getenv('ADMIN_USERNAME', 'admin')
-            admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-            
             # 创建默认admin用户（只在首次初始化时创建）
-            cursor.execute('SELECT COUNT(*) FROM users WHERE username = ?', (admin_username,))
+            cursor.execute('SELECT COUNT(*) FROM users WHERE username = ?', ('admin',))
             admin_exists = cursor.fetchone()[0] > 0
 
             if not admin_exists:
-                # 首次创建admin用户，使用环境变量中的密码
-                default_password_hash = hashlib.sha256(admin_password.encode()).hexdigest()
+                # 首次创建admin用户，设置默认密码
+                default_password_hash = hashlib.sha256("admin123".encode()).hexdigest()
                 cursor.execute('''
                 INSERT INTO users (username, email, password_hash) VALUES
-                (?, ?, ?)
-                ''', (admin_username, f'{admin_username}@localhost', default_password_hash))
-                logger.info(f"创建默认admin用户: {admin_username}")
+                ('admin', 'admin@localhost', ?)
+                ''', (default_password_hash,))
+                logger.info("创建默认admin用户，密码: admin123")
 
             # 获取admin用户ID，用于历史数据绑定
-            self._execute_sql(cursor, "SELECT id FROM users WHERE username = ?", (admin_username,))
+            self._execute_sql(cursor, "SELECT id FROM users WHERE username = 'admin'")
             admin_user = cursor.fetchone()
             if admin_user:
                 admin_user_id = admin_user[0]

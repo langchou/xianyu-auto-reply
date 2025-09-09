@@ -1,11 +1,9 @@
 services:
   xianyu-app:
-    # 使用 GitHub Container Registry 镜像
-    image: ghcr.io/你的GitHub用户名/xianyu-auto-reply:latest
-    # 如果需要本地构建，可以取消注释下面的 build 配置
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile-cn
+    build:
+      context: .
+      dockerfile: Dockerfile-cn
+    image: xianyu-auto-reply:latest
     container_name: xianyu-auto-reply
     restart: unless-stopped
     # 使用root用户避免权限问题
